@@ -1,7 +1,8 @@
 #include <time.h>
 #include <stdio.h>
 
-static unsigned int cur_hour, cur_min;
+static unsigned int hour, min;
+static unsigned char led;
 
 void mode_clock_main() {
 	printf("mode_clock_main\n");
@@ -14,9 +15,10 @@ void mode_clock_init() {
 
         time(&delta);
         timeinfo = localtime(&delta);
-	cur_hour = timeinfo->tm_hour;
-	cur_min = timeinfo->tm_min;
+	hour = timeinfo->tm_hour;
+	min = timeinfo->tm_min;
 	
+	led = 128;
 }
 
 void mode_clock_destroy() {

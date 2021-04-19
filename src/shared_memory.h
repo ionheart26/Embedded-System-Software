@@ -3,9 +3,18 @@
 
 #include "device.h"
 
-#define SHM_FILE "shm_file"
-#define SHM_ID 1
 #define SHM_FLAGS (IPC_CREAT)
+
+/* 
+ * IPC index
+ * Use this index to use shm
+ */
+#define IPC1 0
+#define IPC2 1
+
+/* sem num */
+#define SHM_FULL 0
+#define SHM_EMPTY 1
 		
 struct data {
 	int device;
@@ -13,7 +22,6 @@ struct data {
 };
 
 struct shm {
-        int read_count;
         struct data data;
 };
 
@@ -21,8 +29,8 @@ struct shm {
 int shm_init(void);
 
 /* synchronized */
-int shm_read(struct data* dst);
-int shm_write(struct data* src);
+int shm_read(int ipc, struct data* dst);
+int shm_write(int ipc, struct data* src);
 
 int shm_destroy(void);
 

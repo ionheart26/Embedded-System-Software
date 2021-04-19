@@ -12,7 +12,7 @@ static struct input_property ip;
 static int init();
 static int destroy();
 
-int input_process(struct property* prop) {
+int input_process() {
 	printf("Input process: start\n");
 	struct data data;
 	struct input_event ev_buf[EV_BUF_SIZE];
@@ -20,9 +20,9 @@ int input_process(struct property* prop) {
 	unsigned char push_sw_buf[PUSH_SWITCH_MAX];
 	int is_running = 1;
 
-int n=0;
 	memset(push_sw_buf, 0, sizeof(push_sw_buf));
 	init();
+
 	while(is_running) {
 		if(read(ip.ev_fd, ev_buf, ev_size * EV_BUF_SIZE) >= ev_size) {
 			if(ev_buf[0].value == KEY_RELEASE)
@@ -32,14 +32,10 @@ int n=0;
 
 			if(code == BACK)
 				is_running = 0;
-			printf("========%d=========\n", n);
-n++;
-			printf("Input process: write readkey\n");
+			printf("====Input process: write readkey\n");
 			data.device = READKEY;
 			data.device_data.readkey = ev_buf[0].code;
-	        	p(prop->semid_ipc1, IPC1_EMPTY);
-	     	  	shm_write(&data);
-	       		v(prop->semid_ipc1, IPC1_FULL);
+	     	  	shm_write(IPC1, &data);
 		}
 
 		read(ip.push_switch_fd, &push_sw_buf, sizeof(push_sw_buf));
@@ -52,12 +48,10 @@ n++;
 			}
 		}
 		if(is_push) {
-			printf("Input process: write switch\n");
+			printf("===Input process: write switch\n");
                         data.device = PUSH_SWITCH;
                         memcpy(data.device_data.push_switch, push_sw_buf, sizeof(push_sw_buf));
-                        p(prop->semid_ipc1, IPC1_EMPTY);
-                        shm_write(&data);
-                        v(prop->semid_ipc1, IPC1_FULL);
+                        shm_write(IPC1, &data);
 			usleep(200000);
 		}
 	}

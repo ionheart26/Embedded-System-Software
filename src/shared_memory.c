@@ -7,68 +7,73 @@
 #include "semaphore.h"
 #include "shared_memory.h"
 
-static int shmid, semid;
-static struct shm* shm;
+static int shmid[2];
+static int semid[2];
+static struct shm* shm[2];
 
-/* initialize semaphores
- * create shared memory
+/* 
+ * create two shared memory
+ * create semephores for each
  */
 int shm_init() {
-	key_t shmkey, semkey;
+	key_t shmkey[2];
+	key_t semkey[2];
+	int i;
+	int keyid = 0;
+	for(i = 0; i < 2; i++){
+		semkey[i] = ftok(__FILE__, keyid++);
+	        if((semid[i] = semget(semkey[i], 2, SEM_FLAGS)) == -1) {
+        	        //already exists
+	                if(errno == EEXIST) {
+                	        perror("sem id exists");
+                        	exit(1);
+                	}
+        	}
 
-	semkey = ftok(SHM_SEM_FILE, SHM_SEM_KEY_ID);
-        if((semid = semget(semkey, 2, SEM_FLAGS)) == -1) {
-                //already exists
-                if(errno == EEXIST) {
-                        perror("sem id exists");
-                        exit(1);
-                }
-        }
-	union semun arg;
-	arg.val = 1;
-	semctl(semid, WRT, SETVAL, arg);
-	semctl(semid, MUTEX, SETVAL, arg);
+		union semun arg;
+        	arg.val = 0;
+	        semctl(semid[i], SHM_FULL, SETVAL, arg);
+		arg.val = 1;
+        	semctl(semid[i], SHM_EMPTY, SETVAL, arg);
+	}
 
-	shmkey = ftok(SHM_FILE, SHM_ID);
-	shmid = shmget(shmkey, sizeof(struct shm), SHM_FLAGS);
-	shm = (struct shm*)shmat(shmid, 0, SHM_FLAGS);
-	shm->read_count = 0;
+	for(i = 0; i < 2; i++){
+		shmkey[i] = ftok(__FILE__, keyid++);
+		shmid[i] = shmget(shmkey[i], sizeof(struct shm), SHM_FLAGS);
+		shm[i] = (struct shm*)shmat(shmid[i], 0, SHM_FLAGS);
+	}
 	return 0;
 }
 	
-int shm_read(struct data* dst) {
-	p(semid, MUTEX);
-	shm->read_count++;
-	if(shm->read_count == 1) p(semid, WRT);
-	v(semid, MUTEX);
-	memcpy(dst, &shm->data, sizeof(struct data));
-	p(semid, MUTEX);
-	shm->read_count--;
-	if(shm->read_count == 0) v(semid, WRT);
-	v(semid, MUTEX);
+int shm_read(int ipc, struct data* dst) {
+	p(semid[ipc], SHM_FULL);
+	memcpy(dst, &(shm[ipc]->data), sizeof(struct data));
+	v(semid[ipc], SHM_EMPTY);
 	return 0;
 }
 	
-int shm_write(struct data* src) {
-	p(semid, WRT);
-	memcpy(&shm->data, src, sizeof(struct data));
-	v(semid, WRT);
+int shm_write(int ipc, struct data* src) {
+	p(semid[ipc], SHM_EMPTY);
+	memcpy(&(shm[ipc]->data), src, sizeof(struct data));
+	v(semid[ipc], SHM_FULL);
 	return 0;
 }
 
 int shm_destroy(void) {
-	if(shmdt(shm) == -1) {
-		perror("shm delete");
-		exit(1);
+	int i;
+	for(i = 0; i < 2; i++){
+		if(shmdt(shm[i]) == -1) {
+			perror("shm delete");
+			exit(1);
+		}
+		if(shmctl(shmid[i], IPC_RMID, 0) == -1) {
+			perror("shm rmid");
+			exit(1);
+		}
+		if(semctl(semid[i], 0, IPC_RMID, 0) == -1) {
+	                perror("sem exit");
+        	        exit(1);
+        	}
 	}
-	if(shmctl(shmid, IPC_RMID, 0) == -1) {
-		perror("shm rmid");
-		exit(1);
-	}
-
-	if(semctl(semid, 0, IPC_RMID, 0) == -1) {
-                perror("sem exit");
-                exit(1);
-        }
 	return 0;
 }

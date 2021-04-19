@@ -20,7 +20,7 @@ static int set_mode_destroy();
 /* change mode, control semaphore, do not update shared memory 
  * 
  */
-int main_process(struct property* prop) {
+int main_process() {
 	printf("Main process: start\n");
 	int mode = 0;
 	struct data data;
@@ -31,8 +31,7 @@ int main_process(struct property* prop) {
 	set_mode_destroy();
 	
 	while(is_running) {
-		p(prop->semid_ipc1, IPC1_FULL);
-		shm_read(&data);
+		shm_read(IPC1, &data);
 		
 		if(data.device == READKEY) {
 			int code = data.device_data.readkey;
@@ -59,10 +58,9 @@ int main_process(struct property* prop) {
 			printf("Main : switch\n");
 			mode_main[mode]();
 		}
+		////////////////
+		shm_write(IPC2, &data);
 
-		v(prop->semid_ipc2, IPC2_FULL);
-		p(prop->semid_ipc2, IPC2_EMPTY);
-		v(prop->semid_ipc1, IPC1_EMPTY);
 	}
 	printf("main : exit\n");
 	return 0;

@@ -9,14 +9,13 @@ static struct output_property op;
 static int init();
 static int destroy();
 
-int output_process(struct property* prop) {
+int output_process() {
 	printf("output process: start.\n");
 	struct data data;
 	int is_running = 1;
 
 	while(is_running) {
-		p(prop->semid_ipc2, IPC2_FULL);
-		shm_read(&data);
+		shm_read(IPC2, &data);
 		
 		switch(data.device){
 			case READKEY:
@@ -41,8 +40,6 @@ int output_process(struct property* prop) {
                          //       write(op.text_lcd_fd, data.device_data.text_lcd, sizeof(data.device_data.text_lcd));
                                 break;
 		}
-
-		v(prop->semid_ipc2, IPC2_EMPTY);
 	}
 	printf("output: exit\n");
 	return 0;

@@ -10,6 +10,6 @@ struct input_property {
         int ev_fd, fnd_fd, led_fd, push_switch_fd, dot_fd, lcd_fd;
 };
 
-int input_process(struct property*);
+int input_process();
 
 #endif

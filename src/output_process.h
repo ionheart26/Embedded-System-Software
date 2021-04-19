@@ -8,6 +8,6 @@ struct output_property {
         int ev_fd, fnd_fd, led_fd, push_switch_fd, dot_fd, lcd_fd;
 };
 
-int output_process(struct property*);
+int output_process();
 
 #endif

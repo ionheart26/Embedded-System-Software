@@ -3,6 +3,6 @@
 
 #include "process.h"
 
-int main_process(struct property*);
+int main_process();
 
 #endif
