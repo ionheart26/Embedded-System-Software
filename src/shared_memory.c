@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <string.h>
 #include <sys/ipc.h>
@@ -6,6 +7,8 @@
 #include <errno.h>
 #include "semaphore.h"
 #include "shared_memory.h"
+
+#define PATH_MAX 100
 
 static int shmid[2];
 static int semid[2];
@@ -21,7 +24,10 @@ int shm_init() {
 	int i;
 	int keyid = 0;
 	for(i = 0; i < 2; i++){
-		semkey[i] = ftok(__FILE__, keyid++);
+		char path[PATH_MAX];
+
+		getcwd(path, sizeof(path));
+		semkey[i] = ftok(path, keyid++);
 	        if((semid[i] = semget(semkey[i], 2, SEM_FLAGS)) == -1) {
         	        //already exists
 	                if(errno == EEXIST) {
@@ -38,7 +44,10 @@ int shm_init() {
 	}
 
 	for(i = 0; i < 2; i++){
-		shmkey[i] = ftok(__FILE__, keyid++);
+		char path[PATH_MAX];
+
+                getcwd(path, sizeof(path));
+                shmkey[i] = ftok(path, keyid++);
 		shmid[i] = shmget(shmkey[i], sizeof(struct shm), SHM_FLAGS);
 		shm[i] = (struct shm*)shmat(shmid[i], 0, SHM_FLAGS);
 	}

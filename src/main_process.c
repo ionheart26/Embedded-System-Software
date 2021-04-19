@@ -7,11 +7,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-typedef void (*mode_func) (void);
-
-static mode_func mode_init[4];
-static mode_func mode_main[4];
-static mode_func mode_destroy[4];
+static mode_init_func mode_init[4];
+static mode_main_func mode_main[4];
+static mode_destroy_func mode_destroy[4];
 
 static int set_mode_init();
 static int set_mode_main();
@@ -30,9 +28,9 @@ int main_process() {
 	set_mode_main();
 	set_mode_destroy();
 	
+	mode_init[mode]();
 	while(is_running) {
 		shm_read(IPC1, &data);
-		
 		if(data.device == READKEY) {
 			int code = data.device_data.readkey;
 			printf("Main : readkey[%d]\n", code);
@@ -56,12 +54,12 @@ int main_process() {
 		}
 		else if(data.device == PUSH_SWITCH) {
 			printf("Main : switch\n");
-			mode_main[mode]();
+			mode_main[mode](&data);
 		}
-		////////////////
-		shm_write(IPC2, &data);
 
 	}
+	
+	shm_write(IPC2, &data);
 	printf("main : exit\n");
 	return 0;
 }

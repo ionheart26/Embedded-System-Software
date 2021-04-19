@@ -10,4 +10,5 @@ void mode_counter_init(){
 
 void mode_counter_destroy(){
 	printf("mode_counter_destroy\n");
+	device_clear();
 }

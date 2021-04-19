@@ -4,7 +4,7 @@
 #include "mode.h"
 
 void mode_clock_init();
-void mode_clock_main();
+void mode_clock_main(struct data*);
 void mode_clock_destroy();
 
 #endif

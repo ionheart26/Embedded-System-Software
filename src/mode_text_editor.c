@@ -10,4 +10,5 @@ void mode_text_editor_init(){
 
 void mode_text_editor_destroy(){
 	printf("mode_text_editor_destroy\n");
+	device_clear();
 }

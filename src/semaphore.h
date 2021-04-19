@@ -3,8 +3,8 @@
 
 #include <sys/sem.h>
 
-#define SEM_FLAGS (IPC_CREAT|0660)
-//#define SEM_FLAGS (IPC_CREAT|IPC_EXCL|0660)
+//#define SEM_FLAGS (IPC_CREAT|0660)
+#define SEM_FLAGS (IPC_CREAT|IPC_EXCL|0660)
 
 union semun {
         int val;

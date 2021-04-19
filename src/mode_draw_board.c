@@ -10,4 +10,5 @@ void mode_draw_board_init(){
 
 void mode_draw_board_destroy(){
 	printf("mode_draw_board_destroy\n");
+	device_clear();
 }
