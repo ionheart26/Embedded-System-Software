@@ -1,9 +1,8 @@
 #include "main_process.h"
-#include "mode_clock.h"
-#include "mode_counter.h"
-#include "mode_text_editor.h"
-#include "mode_draw_board.h"
-
+#include "../mode/mode_clock.h"
+#include "../mode/mode_counter.h"
+#include "../mode/mode_text_editor.h"
+#include "../mode/mode_draw_board.h"
 #include <stdio.h>
 #include <unistd.h>
 

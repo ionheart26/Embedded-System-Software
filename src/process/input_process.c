@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <string.h>
-#include "device.h"
+#include "../lib/device.h"
 
 int input_process() {
 	printf("Input process: start\n");

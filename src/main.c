@@ -1,12 +1,13 @@
 #include <unistd.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include "shared_memory.h"
-#include "input_process.h"
-#include "main_process.h"
-#include "output_process.h"
+#include "lib/shared_memory.h"
+#include "process/input_process.h"
+#include "process/main_process.h"
+#include "process/output_process.h"
 
 static int fd_init();
 static int fd_destroy();
@@ -18,6 +19,7 @@ static int fd_destroy();
  */
 int main(void) {
 	pid_t pid;
+	int status;
 
 	fd_init();
 	shm_init();
@@ -37,8 +39,8 @@ int main(void) {
 		main_process();
 
 		/* Exit */
-		wait();
-		wait();
+		wait(&status);
+		wait(&status);
 		fd_destroy();
 		shm_destroy();
 	}

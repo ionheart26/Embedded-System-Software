@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#include "led_mmap.h"
+#include "../lib/led_mmap.h"
 
 static unsigned int hour, min;
 static unsigned char led;
@@ -17,7 +17,6 @@ static void* flicker_func(void* arg);
 
 void mode_clock_main(struct data* input) {
 	printf("mode_clock_main\n");
-	struct data data;
 	int sw;
 	int i;
 	

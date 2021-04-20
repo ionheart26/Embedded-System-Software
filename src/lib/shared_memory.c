@@ -5,6 +5,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <errno.h>
+#include <unistd.h>
 #include "semaphore.h"
 #include "shared_memory.h"
 
